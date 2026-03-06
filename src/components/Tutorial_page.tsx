@@ -175,14 +175,14 @@ const tutorialSections: Section[] = [
   },
 
   {
-    sectionId: 2.5,
+    sectionId: 2.1,
     sectionTitle: 'Agent Error Troubleshooting',
-    sectionTag: 'Section 02B',
+    sectionTag: 'Section 2.1',
     sectionDescription: 'Common errors you may see in the agent terminal — what each message means and exactly how to resolve it.',
     sectionColor: '#DC2626',
     steps: [
       {
-        number: 5.1,
+        number: 1,
         title: 'Error: No Active Licence',
         description: 'The agent posts login credentials and immediately receives a 403 rejection. No data sync can begin until this is resolved.',
         icon: AlertTriangle,
@@ -194,7 +194,7 @@ const tutorialSections: Section[] = [
         ],
       },
       {
-        number: 5.2,
+        number: 2,
         title: 'Error: Company Already Registered',
         description: 'Authentication succeeds but the sync fails with a 500 error when the agent tries to register the Tally company.',
         icon: AlertTriangle,
@@ -206,7 +206,7 @@ const tutorialSections: Section[] = [
         ],
       },
       {
-        number: 5.3,
+        number: 3,
         title: 'Error: Invalid Credentials',
         description: 'The agent is rejected at the login step because the email or password entered in the terminal does not match any Admin account.',
         icon: AlertTriangle,
@@ -218,7 +218,7 @@ const tutorialSections: Section[] = [
         ],
       },
       {
-        number: 5.4,
+        number: 4,
         title: 'Error: Backend Not Reachable',
         description: 'The agent gets no response at all — status and data are both undefined. The target server address is unreachable.',
         icon: AlertTriangle,
@@ -230,14 +230,14 @@ const tutorialSections: Section[] = [
         ],
       },
       {
-        number: 5.5,
+        number: 5,
         title: 'Success: Agent Running Correctly',
         description: 'When everything is configured correctly the agent authenticates, detects Tally companies, and begins streaming ledger data into the terminal.',
         icon: CheckCircle,
         iconColor: '#16A34A',
         image: active,
         details: [
-          { message: '✅ Agent authenticated as: your-email@domain.com', reason: 'Credentials accepted and licence verified — the agent is fully connected to the server.' },
+          { message: ' Agent authenticated as: your-email@domain.com', reason: 'Credentials accepted and licence verified — the agent is fully connected to the server.' },
           { message: 'Companies detected · Active company selected · STEP 1: syncLedgers started', reason: 'Agent found Tally Prime, selected the active company, and began pulling data automatically.' },
           { message: 'Ledger Pull: <Party Name> streaming in terminal', reason: 'Live data is flowing from Tally Prime in real time — keep the terminal open while the agent is running.' },
         ],
@@ -854,7 +854,7 @@ const IndexSidebar = ({ activeGlobalIdx, onJump, isOpen, onToggle, isMobile, foo
                       boxShadow: isSectionActive ? `0 2px 6px ${section.sectionColor}40` : 'none',
                       transition: 'all 0.22s ease',
                     }}>
-                      <span style={{ fontSize: '8px', fontWeight: 800, color: isSectionActive ? 'white' : BRAND.muted, fontFamily: '"Inter", sans-serif' }}>{String(secIdx + 1).padStart(2, '0')}</span>
+                      <span style={{ fontSize: '8px', fontWeight: 800, color: isSectionActive ? 'white' : BRAND.muted, fontFamily: '"Inter", sans-serif' }}>{section.sectionTag.replace('Section ', '')}</span>
                     </div>
                     <span style={{ flex: 1, fontSize: '10.5px', fontWeight: 700, color: isSectionActive ? section.sectionColor : '#64748B', fontFamily: '"Inter", sans-serif', lineHeight: 1.25, letterSpacing: '0.01em', transition: 'color 0.18s ease' }}>{section.sectionTitle}</span>
                     {completedInSection > 0 && (
@@ -1259,7 +1259,10 @@ const StepCard = ({ step, isMobile, isTablet, globalIdx, canPrev, canNext, onPre
                   return (
                     <motion.button
                       key={i}
-                      onClick={() => setGlobalIdx(i)}
+                      onClick={() => {
+                        setIsUserNavigation(true)
+                        setGlobalIdx(i)
+                      }}
                       animate={{
                         width: isActive ? 30 : isNear ? 14 : 7,
                         height: 6,
@@ -1330,18 +1333,34 @@ export default function TutorialPage() {
   const [isTablet,    setIsTablet]    = useState(false)
   const [globalIdx,   setGlobalIdx]   = useState(0)
   const [viewMode,    setViewMode]    = useState<'step' | 'overview'>('step')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
   const contentRef = useRef<HTMLDivElement>(null)
   const footerRef  = useRef<HTMLDivElement>(null)
   const isFirstRender = useRef<boolean>(true)
   const [footerOffset, setFooterOffset] = useState(0)
-
+  const [isUserNavigation, setIsUserNavigation] = useState(false)
   const currentStep    = ALL_STEPS[globalIdx]
   const currentSection = tutorialSections.find(s => s.steps.some(st => st.number === currentStep.number))
   const canPrev = globalIdx > 0
   const canNext = globalIdx < TOTAL_STEPS - 1
   const prev = useCallback(() => { if (canPrev) setGlobalIdx(i => i - 1) }, [canPrev])
   const next = useCallback(() => { if (canNext) setGlobalIdx(i => i + 1) }, [canNext])
+  
+  const handleStepClick = (idx: number) => {
+    setGlobalIdx(idx)
+    setIsUserNavigation(true)
+
+    if(viewMode === 'overview') {
+      setTimeout(() => {
+        const card = document.getElementById(`overview-step-${idx}`)
+        card?.scrollIntoView({behavior: 'smooth', block: 'center'})
+      }, 50)
+    }
+  }
+  
+useEffect(() => {
+  window.scrollTo({ top: 0 })
+}, [])
 
   useEffect(() => {
     const updateOffset = () => {
@@ -1381,26 +1400,29 @@ export default function TutorialPage() {
     return () => window.removeEventListener('resize', fn)
   }, [])
 
-  useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return }
+useEffect(() => {
+    if(isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    if (!isUserNavigation) return
     if (!contentRef.current) return
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!contentRef.current) return
-        const stickyNav = document.querySelector('[data-sticky-nav]')
-        const navHeight = stickyNav?.getBoundingClientRect().height ?? 72
-        const elementTop = contentRef.current.getBoundingClientRect().top + window.pageYOffset
-        window.scrollTo({ top: elementTop - navHeight - 20, behavior: 'smooth' })
-      })
+    
+    const stickyNav = document.querySelector('[data-sticky-nav]') as HTMLElement | null
+    const navHeight = stickyNav ? stickyNav.getBoundingClientRect().height : 72
+    const elementTop = contentRef.current.getBoundingClientRect().top + window.pageYOffset
+    window.scrollTo({
+      top: elementTop - navHeight - 20,
+      behavior: 'smooth'
     })
-  }, [globalIdx])
-
+     setIsUserNavigation(false)
+}, [globalIdx])
   return (
     <div style={{ minHeight: '100vh', fontFamily: '"Inter", sans-serif', background: 'linear-gradient(180deg, #ecfeff 0%, #f8fafc 30%, #ffffff 100%)', position: 'relative', width: '100%', overflowX: 'hidden' }}>
 
       <IndexSidebar
         activeGlobalIdx={globalIdx}
-        onJump={setGlobalIdx}
+        onJump={handleStepClick}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(o => !o)}
         isMobile={isMobile}
@@ -1571,7 +1593,7 @@ export default function TutorialPage() {
                   canNext={canNext}
                   onPrev={prev}
                   onNext={next}
-                  setGlobalIdx={setGlobalIdx}
+                  setGlobalIdx={handleStepClick}
                 />
               </AnimatePresence>
             </div>
@@ -1677,7 +1699,8 @@ export default function TutorialPage() {
                     return (
                       <motion.button
                         key={step.number}
-                        onClick={() => { setGlobalIdx(stepGlobalIdx); setViewMode('step') }}
+                        id={`overview-step-${stepGlobalIdx}`}
+                        onClick={() => { handleStepClick(stepGlobalIdx) }}
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
@@ -1790,6 +1813,7 @@ export default function TutorialPage() {
             ))}
           </section>
         )}
+          </motion.div>
 
         {/* ── CTA ── */}
         <div style={{ padding: isMobile ? '2.5rem 1.25rem 3rem' : '1rem 1.5rem', textAlign: 'center', background: 'linear-gradient(135deg, #e8f4fd 0%, #f0f9ff 40%, #eef2ff 100%)', borderTop: '1px solid rgba(99,179,237,0.2)', position: 'relative', overflow: 'hidden' }}>
@@ -1820,8 +1844,6 @@ export default function TutorialPage() {
             </motion.button>
           </motion.div>
         </div>
-
-      </motion.div>
 
       {/* ── FLOATING SCROLL BUTTONS ── */}
       {!isMobile && (
