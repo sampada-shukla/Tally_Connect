@@ -1536,7 +1536,7 @@ useEffect(() => {
 
         {/* ── STEP VIEW ── */}
         {viewMode === 'step' && (
-          <section style={{ padding: isMobile ? '1.5rem 1rem 2.5rem' : isTablet ? '2.5rem 2rem 3.5rem' : '3rem 3.5rem 4.5rem', minHeight: '85vh', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '1rem' : '1.5rem', background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)' }}>
+          <section style={{ padding: isMobile ? '0.75rem 1rem 2.5rem' : isTablet ? '1rem 2rem 3.5rem' : '1.25rem 3.5rem 4.5rem', minHeight: '85vh', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: isMobile ? '0.5rem' : '0.75rem', background: 'linear-gradient(180deg, #f8fafc 0%, #ffffff 100%)' }}>
             <div ref={contentRef} style={{ scrollMarginTop: '90px', width: '100%', maxWidth: '1100px', display: 'flex', justifyContent: 'center' }}>
               <AnimatePresence mode="wait">
                 <motion.div
@@ -1545,10 +1545,10 @@ useEffect(() => {
                   transition={{ duration: 0.3 }}
                   style={{ textAlign: 'center', width: '100%', maxWidth: '700px' }}
                 >
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '4px 14px', borderRadius: '999px', marginBottom: '0.6rem', background: `${currentSection?.sectionColor}14`, border: `1.5px solid ${currentSection?.sectionColor}35` }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: currentSection?.sectionColor, boxShadow: `0 0 6px ${currentSection?.sectionColor}80` }} />
-                    <span style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: currentSection?.sectionColor, fontFamily: '"Inter", sans-serif' }}>
-                      {currentSection?.sectionTag} — {currentSection?.sectionTitle}
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '4px 14px', borderRadius: '999px', marginBottom: '0.6rem', background: `${currentStep?.iconColor}14`, border: `1.5px solid ${currentStep?.iconColor}35` }}>
+                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: currentStep?.iconColor, boxShadow: `0 0 6px ${currentStep?.iconColor}80` }} />
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: currentStep?.iconColor, fontFamily: '"Inter", sans-serif' }}>
+                      {currentSection?.sectionTitle}
                     </span>
                   </div>
                   <p style={{ fontSize: isMobile ? '13px' : '14px', color: BRAND.muted, margin: 0, lineHeight: 1.65, fontFamily: '"Inter", sans-serif' }}>
